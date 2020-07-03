@@ -5,8 +5,9 @@ import { RadioGroupProps, RadioChangeEvent, RadioGroupButtonStyle } from './inte
 import { ConfigContext } from '../config-provider';
 import SizeContext from '../config-provider/SizeContext';
 import { RadioGroupContextProvider } from './context';
+import { usePrevious } from '../_util/ref';
 
-const RadioGroup: React.FC<RadioGroupProps> = props => {
+const RadioGroup = React.forwardRef<unknown, RadioGroupProps>((props, ref) => {
   const { getPrefixCls, direction } = React.useContext(ConfigContext);
   const size = React.useContext(SizeContext);
 
@@ -17,10 +18,9 @@ const RadioGroup: React.FC<RadioGroupProps> = props => {
     initValue = props.defaultValue;
   }
   const [value, setValue] = React.useState(initValue);
-  const [prevPropValue, setPrevPropValue] = React.useState(props.value);
+  const prevPropValue = usePrevious(props.value);
 
   React.useEffect(() => {
-    setPrevPropValue(props.value);
     if (props.value !== undefined || prevPropValue !== props.value) {
       setValue(props.value);
     }
@@ -64,6 +64,7 @@ const RadioGroup: React.FC<RadioGroupProps> = props => {
           // 此处类型自动推导为 string
           return (
             <Radio
+              ref={ref}
               key={option}
               prefixCls={optionsPrefixCls}
               disabled={disabled}
@@ -77,6 +78,7 @@ const RadioGroup: React.FC<RadioGroupProps> = props => {
         // 此处类型自动推导为 { label: string value: string }
         return (
           <Radio
+            ref={ref}
             key={`radio-group-value-options-${option.value}`}
             prefixCls={optionsPrefixCls}
             disabled={option.disabled || disabled}
@@ -125,7 +127,7 @@ const RadioGroup: React.FC<RadioGroupProps> = props => {
       {renderGroup()}
     </RadioGroupContextProvider>
   );
-};
+});
 
 RadioGroup.defaultProps = {
   buttonStyle: 'outline' as RadioGroupButtonStyle,
